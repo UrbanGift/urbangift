@@ -1,0 +1,126 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>UrbanGift — Gifts, Gadgets & More</title>
+<style>
+:root{--p:#111827;--a:#7c3aed;--bg:#f7f7fb;--card:#fff;--muted:#6b7280;--ok:#16a34a;--danger:#dc2626}
+*{box-sizing:border-box}body{margin:0;font-family:Inter,Arial,sans-serif;background:var(--bg);color:var(--p)}
+header{background:#fff;border-bottom:1px solid #eee;position:sticky;top:0;z-index:10}
+.nav{max-width:1100px;margin:auto;padding:14px 18px;display:flex;align-items:center;gap:18px}.brand{font-size:25px;font-weight:900;color:var(--a);margin-right:auto}
+.search{max-width:360px;flex:1;padding:11px 14px;border:1px solid #ddd;border-radius:12px}
+.cart{background:#111827;color:#fff;border:0;border-radius:12px;padding:11px 15px;font-weight:700}
+.hero{max-width:1100px;margin:24px auto;padding:35px 22px;border-radius:22px;background:linear-gradient(135deg,#ede9fe,#fff);display:flex;justify-content:space-between;gap:20px}
+.hero h1{font-size:42px;margin:0 0 10px}.hero p{color:var(--muted);font-size:17px}.badge{display:inline-block;background:#111827;color:#fff;padding:7px 11px;border-radius:999px;font-size:12px}
+main{max-width:1100px;margin:auto;padding:0 18px 50px}.cats{display:flex;gap:9px;overflow:auto;margin:18px 0}.cats button{white-space:nowrap;border:1px solid #ddd;background:#fff;border-radius:999px;padding:9px 14px}
+.grid{display:grid;grid-template-columns:repeat(4,1fr);gap:16px}.card{background:var(--card);border-radius:18px;overflow:hidden;border:1px solid #eee;box-shadow:0 5px 20px #00000008}.pic{height:180px;background:#eee;display:flex;align-items:center;justify-content:center;font-size:54px}.info{padding:14px}.price{font-weight:900;font-size:19px}.add{width:100%;margin-top:10px;border:0;background:var(--a);color:#fff;padding:11px;border-radius:10px;font-weight:800}
+.panel{background:#fff;border:1px solid #eee;border-radius:18px;padding:20px;margin-top:22px}.panel h2{margin-top:0}
+label{display:block;font-weight:700;font-size:13px;margin:12px 0 6px}input,textarea,select{width:100%;padding:11px;border:1px solid #d8d8df;border-radius:10px;font:inherit}textarea{min-height:75px}.row{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.upload{border:2px dashed #c4b5fd;padding:18px;border-radius:14px;background:#faf8ff;text-align:center}.preview{max-width:150px;max-height:150px;border-radius:10px;margin-top:10px;display:none}
+.paygrid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}.pay{border:1px solid #ddd;border-radius:12px;padding:12px;background:#fff;text-align:center;cursor:pointer}.pay.active{border:2px solid var(--a);background:#faf8ff}.pay.disabled{opacity:.55;cursor:not-allowed}.qr{display:block;max-width:270px;width:100%;margin:15px auto;border-radius:12px}.order{display:none;background:#ecfdf5;border:1px solid #86efac;border-radius:15px;padding:16px}.order b{color:#166534}.wa{display:inline-block;background:#16a34a;color:#fff;text-decoration:none;padding:12px 16px;border-radius:11px;font-weight:800;margin-top:10px}
+.small{font-size:12px;color:var(--muted)}.danger{color:var(--danger)}footer{text-align:center;padding:25px;color:var(--muted)}
+@media(max-width:800px){.grid{grid-template-columns:repeat(2,1fr)}.hero h1{font-size:31px}.search{display:none}}
+@media(max-width:520px){.grid,.row,.paygrid{grid-template-columns:1fr}.hero{margin:12px}.nav{padding:12px}.pic{height:145px}}
+</style>
+</head>
+<body>
+<header><div class="nav"><div class="brand">UrbanGift</div><input id="search" class="search" placeholder="Search products..."><button class="cart" onclick="scrollToCheckout()">Cart (<span id="count">0</span>)</button></div></header>
+
+<section class="hero">
+<div><span class="badge">ONLINE SHOPPING</span><h1>Gifts, Gadgets & More</h1><p>Trendy products, beautiful gifts and easy UPI checkout.</p></div>
+<div style="font-size:70px">🎁</div>
+</section>
+
+<main>
+<div class="cats">
+<button onclick="filter('all')">All</button><button onclick="filter('Fashion')">Fashion</button>
+<button onclick="filter('Gadgets')">Gadgets</button><button onclick="filter('Gifts')">Gifts</button><button onclick="filter('Flowers')">Flowers</button>
+</div>
+<div id="products" class="grid"></div>
+
+<section id="checkout" class="panel">
+<h2>Checkout</h2>
+<div id="cartBox" class="small">Cart empty — add a product first.</div>
+<div class="row">
+<div><label>Customer Name</label><input id="name" required placeholder="Your name"></div>
+<div><label>Mobile Number</label><input id="phone" inputmode="numeric" placeholder="10-digit mobile number"></div>
+</div>
+<label>Delivery Address</label><textarea id="address" placeholder="House / Street / City / PIN"></textarea>
+
+<label>Customer Product / Reference Image (optional)</label>
+<div class="upload"><input id="image" type="file" accept="image/*"><br><img id="preview" class="preview"><div class="small">You can upload a product/reference image.</div></div>
+
+<label>Payment Method</label>
+<div class="paygrid">
+<div class="pay active" id="upi" onclick="selectPay('upi')">UPI<br><span class="small">PhonePe • GPay • Paytm</span></div>
+<div class="pay" id="cod" onclick="selectPay('cod')" style="opacity:.55;cursor:not-allowed">Cash on Delivery<br><span class="danger">Not eligible</span></div>
+<div class="pay" id="prepaid" onclick="selectPay('prepaid')">Prepaid UPI<br><span class="small">Recommended</span></div>
+</div>
+
+<div id="paymentBox">
+<h3>Pay securely by UPI</h3>
+<img src="upi-qr.jpg" class="qr" alt="UrbanGift UPI QR">
+<p style="text-align:center"><b>UPI ID:</b> 8210015119-3@ybl</p>
+<p class="small" style="text-align:center">The QR above is the merchant QR supplied for this website.</p>
+</div>
+
+<button class="add" style="margin-top:18px" onclick="placeOrder()">Place Order</button>
+<div id="orderResult" class="order" style="margin-top:15px"></div>
+</section>
+</main>
+<footer>© 2026 UrbanGift • Secure checkout • COD currently not eligible</footer>
+
+<script>
+const PRODUCTS=[
+{id:1,name:"Premium Gift Box",cat:"Gifts",price:599,icon:"🎁"},
+{id:2,name:"Rose Bouquet",cat:"Flowers",price:499,icon:"💐"},
+{id:3,name:"Smart Gadget",cat:"Gadgets",price:899,icon:"📱"},
+{id:4,name:"Trendy T-Shirt",cat:"Fashion",price:699,icon:"👕"},
+{id:5,name:"Couple Gift",cat:"Gifts",price:799,icon:"💝"},
+{id:6,name:"Wireless Earbuds",cat:"Gadgets",price:1299,icon:"🎧"},
+{id:7,name:"Fashion Accessory",cat:"Fashion",price:399,icon:"👜"},
+{id:8,name:"Birthday Bouquet",cat:"Flowers",price:699,icon:"🌹"}
+];
+let cart=[],pay="upi";
+
+function render(list=PRODUCTS){
+ document.getElementById("products").innerHTML=list.map(p=>`
+ <div class="card"><div class="pic">${p.icon}</div><div class="info">
+ <div class="small">${p.cat}</div><b>${p.name}</b><div class="price">₹${p.price}</div>
+ <button class="add" onclick="add(${p.id})">Add to Cart</button></div></div>`).join("");
+}
+function add(id){const p=PRODUCTS.find(x=>x.id===id);cart.push(p);updateCart();scrollToCheckout()}
+function updateCart(){
+ document.getElementById("count").textContent=cart.length;
+ const box=document.getElementById("cartBox");
+ if(!cart.length){box.textContent="Cart empty — add a product first.";return}
+ let total=cart.reduce((s,p)=>s+p.price,0);
+ box.innerHTML=cart.map((p,i)=>`${i+1}. ${p.name} — ₹${p.price}`).join("<br>")+`<hr><b>Total: ₹${total}</b>`;
+}
+function filter(cat){render(cat==="all"?PRODUCTS:PRODUCTS.filter(p=>p.cat===cat))}
+document.getElementById("search").addEventListener("input",e=>{
+ const q=e.target.value.toLowerCase();render(PRODUCTS.filter(p=>(p.name+" "+p.cat).toLowerCase().includes(q)))
+});
+document.getElementById("image").addEventListener("change",e=>{
+ const f=e.target.files[0],img=document.getElementById("preview");if(f){img.src=URL.createObjectURL(f);img.style.display="inline-block"}
+});
+function selectPay(x){if(x==="cod")return;pay=x;document.querySelectorAll(".pay").forEach(e=>e.classList.remove("active"));document.getElementById(x).classList.add("active")}
+function scrollToCheckout(){document.getElementById("checkout").scrollIntoView({behavior:"smooth"})}
+function placeOrder(){
+ if(!cart.length){alert("Please add a product first.");return}
+ const name=document.getElementById("name").value.trim(),phone=document.getElementById("phone").value.trim(),address=document.getElementById("address").value.trim();
+ if(!name||!phone||!address){alert("Please fill name, mobile number and address.");return}
+ if(!/^\d{10}$/.test(phone)){alert("Please enter a valid 10-digit mobile number.");return}
+ const id="UG"+Date.now().toString().slice(-8);
+ const total=cart.reduce((s,p)=>s+p.price,0);
+ const items=cart.map(p=>p.name+" ₹"+p.price).join(", ");
+ const msg=`UrbanGift New Order%0A%0AOrder ID: ${id}%0ACustomer ID: CUST-${phone.slice(-4)}%0AName: ${encodeURIComponent(name)}%0AMobile: ${phone}%0AAddress: ${encodeURIComponent(address)}%0AItems: ${encodeURIComponent(items)}%0ATotal: ₹${total}%0APayment: ${pay==="upi"?"UPI":"Prepaid UPI"}%0AImage: ${document.getElementById("image").files.length?"Uploaded":"Not uploaded"}`;
+ const wa="https://wa.me/918210015119?text="+msg;
+ const r=document.getElementById("orderResult");r.style.display="block";
+ r.innerHTML=`<b>Order placed successfully!</b><br>Order ID: <b>${id}</b><br>Customer ID: <b>CUST-${phone.slice(-4)}</b><br>Total: <b>₹${total}</b><br><span class="small">For payment, complete the UPI payment shown above. Your WhatsApp order message will open next.</span><br><a class="wa" href="${wa}" target="_blank">Send Order Details on WhatsApp</a>`;
+}
+render();updateCart();
+</script>
+</body>
+</html>
